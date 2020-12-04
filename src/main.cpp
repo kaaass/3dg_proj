@@ -3,7 +3,7 @@
 #include <vector>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "shader_s.h"
+#include "shader.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "model.h"
@@ -19,13 +19,13 @@ Shader *lampShader = nullptr;
 unsigned int VBO;
 unsigned int lightVAO;
 
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
+double deltaTime = 0.0f;
+double lastFrame = 0.0f;
 
 Camera *camera = nullptr;
 Model *model = nullptr;
-float lastX = screenWidth / 2;
-float lastY = screenHeight / 2;
+double lastX = (double) screenWidth / 2;
+double lastY = (double) screenHeight / 2;
 bool firstMouse = true;
 
 std::vector<glm::vec3> pointLightPositions = {
@@ -34,9 +34,15 @@ std::vector<glm::vec3> pointLightPositions = {
 };
 
 void prepareDraw() {
+    // OpenGL 功能配置
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     // Create shader
-    lightingShader = new Shader("shader/model.vs", "shader/model.fs");
-    lampShader = new Shader("shader/colors.vs", "shader/colors_light.fs");
+    lightingShader = new Shader("shader/model.vert", "shader/model.frag");
+    lampShader = new Shader("shader/colors.vert", "shader/colors_light.frag");
 
     // Load model
     // model/gennso/gennso.pmx
@@ -64,7 +70,7 @@ void drawStaff() {
 
     // Projection matrix
     glm::mat4 projection;
-    projection = glm::perspective(glm::radians(camera->zoom), (float) screenWidth / screenHeight, 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(camera->zoom), (double) screenWidth / screenHeight, 0.1, 100.0);
 
     // Pass the transform matrixs
     lightingShader->setMat4("view", camera->getViewMatrix());
@@ -150,66 +156,57 @@ void processInput(GLFWwindow *window);
 
 int main() {
     glfwInit();
-    // OpenGL Version
+    // OpenGL 版本配置
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    // Using core profile
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    // For Mac OS X:
-    // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_SAMPLES, 4);
 
-    // Create window object
-    GLFWwindow *window = glfwCreateWindow(screenWidth, screenHeight, "Toy - Model Loader", NULL, NULL);
-    if (window == NULL) {
+    // 创建窗口
+    GLFWwindow *window = glfwCreateWindow(screenWidth, screenHeight, "3DG Project", nullptr, nullptr);
+    if (window == nullptr) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
     glfwMakeContextCurrent(window);
-    // Using GLAD to load OpenGL functions
+    // 初始化 GLAD
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-    // Define the Viewport
+    // 视口设置
     glViewport(0, 0, screenWidth, screenHeight);
-    // Register callbacks
+    // 注册回调
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
-    // Capture the mouse
+    // 捕获鼠标
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    // Configuration
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_MULTISAMPLE);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    // Prepare for drawing
+    // 绘制准备
     prepareDraw();
 
-    // Start render loop
+    // 绘制循环
     while (!glfwWindowShouldClose(window)) {
-        // Input
+        // 处理输入
         processInput(window);
 
-        // Clear Screen
+        // 清屏
         glClearColor(1.0f, 1.0f, 0.7f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Draw
+        // 绘制
         drawStaff();
 
-        // Frame calc
-        float currentFrame = glfwGetTime();
+        // 计算帧率
+        double currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // Swap double buffer
+        // 交换帧缓冲
         glfwSwapBuffers(window);
-        // Deal with the events
+        // 处理相关事件
         glfwPollEvents();
     }
 
@@ -219,7 +216,7 @@ int main() {
 }
 
 /*
- * Callbacks
+ * 回调
  */
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
@@ -235,7 +232,7 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
-    // Camera Pos
+    // 移动相机
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera->processKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -244,7 +241,7 @@ void processInput(GLFWwindow *window) {
         camera->processKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera->processKeyboard(RIGHT, deltaTime);
-    // Release mouse
+    // 释放鼠标
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
         double now = glfwGetTime();
         if (now - lstChangeMouse > 0.2) {
@@ -266,8 +263,8 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
         firstMouse = false;
     }
 
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos;
+    double xoffset = xpos - lastX;
+    double yoffset = lastY - ypos;
     lastX = xpos;
     lastY = ypos;
 

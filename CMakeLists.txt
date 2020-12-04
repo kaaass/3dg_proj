@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 # Source files
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/externals")
-set(SOURCES "${SRC_DIR}/main.cpp")
+set(SOURCES "${SRC_DIR}/main.cpp" src/shader.cpp src/texture.cpp src/texture.h src/model.cpp src/mesh.cpp src/camera.cpp)
 
 # Executable definition and properties
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -32,8 +32,12 @@ target_link_libraries(${PROJECT_NAME} "glad" "${CMAKE_DL_LIBS}")
 
 # Find assimp
 set(ASSIMP_DIR "${LIB_DIR}/assimp")
-set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE INTERNAL "")
-set(ASSIMP_BUILD_TESTS OFF CACHE INTERNAL "")
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+set(ASSIMP_BUILD_TESTS OFF)
+set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
+set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
+set(ASSIMP_BUILD_OBJ_IMPORTER ON)
+set(ASSIMP_BUILD_MMD_IMPORTER ON)
 add_subdirectory("${ASSIMP_DIR}")
 target_link_libraries(${PROJECT_NAME} "assimp" "${Assimp_BINARY_DIR}/lib")
 target_include_directories(${PROJECT_NAME} PRIVATE " ${Assimp_SOURCE_DIR}/include")
