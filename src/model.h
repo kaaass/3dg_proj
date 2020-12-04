@@ -22,7 +22,7 @@ public:
 
     /*  函数   */
 
-    explicit Model(char *path);
+    explicit Model(const std::string &path);
 
     void draw(Shader shader);
 

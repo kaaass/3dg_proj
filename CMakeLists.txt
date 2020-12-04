@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 # Source files
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/externals")
-set(SOURCES "${SRC_DIR}/main.cpp" src/shader.cpp src/texture.cpp src/texture.h src/model.cpp src/mesh.cpp src/camera.cpp)
+file(GLOB_RECURSE SOURCES "${SRC_DIR}/*.c" "${SRC_DIR}/*.cc" "${SRC_DIR}/*.cpp" "${SRC_DIR}/*.h" "${SRC_DIR}/*.hpp")
 
 # Executable definition and properties
 add_executable(${PROJECT_NAME} ${SOURCES})

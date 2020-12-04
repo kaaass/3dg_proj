@@ -10,7 +10,7 @@ Camera::Camera(glm::vec3 pPosition, glm::vec3 pUp, float pYaw, float pPitch) : f
 }
 
 Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float pYaw, float pPitch) : front(
-        glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), zoom(ZOOM) {
+        glm::vec3(0.0, 0.0, -1.0)), movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), zoom(ZOOM) {
     position = glm::vec3(posX, posY, posZ);
     worldUp = glm::vec3(upX, upY, upZ);
     yaw = pYaw;
@@ -22,8 +22,8 @@ glm::mat4 Camera::getViewMatrix() const {
     return glm::lookAt(position, position + front, up);
 }
 
-void Camera::processKeyboard(CameraMovement direction, double deltaTime) {
-    double velocity = movementSpeed * deltaTime;
+void Camera::processKeyboard(CameraMovement direction, float deltaTime) {
+    float velocity = movementSpeed * deltaTime;
     if (direction == FORWARD)
         position += front * velocity;
     if (direction == BACKWARD)
@@ -34,7 +34,7 @@ void Camera::processKeyboard(CameraMovement direction, double deltaTime) {
         position += right * velocity;
 }
 
-void Camera::processMouseMovement(double xoffset, double yoffset, GLboolean constrainPitch) {
+void Camera::processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch) {
     xoffset *= mouseSensitivity;
     yoffset *= mouseSensitivity;
 
@@ -53,7 +53,7 @@ void Camera::processMouseMovement(double xoffset, double yoffset, GLboolean cons
     updateCameraVectors();
 }
 
-void Camera::processMouseScroll(double yoffset) {
+void Camera::processMouseScroll(float yoffset) {
     if (zoom >= 1.0f && zoom <= 45.0f)
         zoom -= yoffset;
     if (zoom <= 1.0f)

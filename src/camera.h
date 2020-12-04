@@ -33,12 +33,12 @@ public:
     glm::vec3 right;
     glm::vec3 worldUp;
     // 欧拉角
-    double yaw;
-    double pitch;
+    float yaw;
+    float pitch;
     // 相机选项
-    double movementSpeed;
-    double mouseSensitivity;
-    double zoom;
+    float movementSpeed;
+    float mouseSensitivity;
+    float zoom;
 
     /**
      * 向量初始化
@@ -56,17 +56,17 @@ public:
     /**
      * 键盘操作
      */
-    void processKeyboard(CameraMovement direction, double deltaTime);
+    void processKeyboard(CameraMovement direction, float deltaTime);
 
     /**
      * 鼠标操作
      */
-    void processMouseMovement(double xoffset, double yoffset, GLboolean constrainPitch = true);
+    void processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
 
     /**
      * 鼠标滚轮
      */
-    void processMouseScroll(double yoffset);
+    void processMouseScroll(float yoffset);
 
 private:
     /**
