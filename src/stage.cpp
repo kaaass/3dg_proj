@@ -14,6 +14,7 @@ void Stage::prepareDraw() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Create shader
+    lightingShader = new Shader("shader/model.vert", "shader/model.frag");
     shader = new Shader("shader/advanced_lighting.vert", "shader/advanced_lighting.frag");
     normalDisplayShader =
             new Shader("shader/normalDisplayShader.vert",
@@ -37,7 +38,7 @@ void Stage::prepareDraw() {
     glBindVertexArray(0);
 
     // Load texture
-    floorTexture = TextureLoader::loadTexture("image/wood.png");
+    floorTexture = TextureLoader::loadTexture("image/snow.png");
 
     // shader
     shader->use();
@@ -56,14 +57,58 @@ void Stage::drawStaff() {
     glm::mat4 view = camera->getViewMatrix();
     glm::mat4 modelMat = glm::mat4(1.0f);
 
-    shader->use();
-    shader->setVec3("viewPos", camera->position);
-    shader->setVec3("lightPos", lightPos);
-    shader->setInt("blinn", true);
-    shader->setMat4("view", view);
-    shader->setMat4("projection", projection);
+    // Lighting
+    lightingShader->use();
+    float dirAmbient = 1.0f;
+    float pointAmbient = dirAmbient;
+    float spotAmbient = dirAmbient;
+
+    float dirDiffuse = 0.0f;
+    float pointDiffuse = dirDiffuse;
+    float spotDiffuse = dirDiffuse;
+
+    float dirSpec = 0.0f;
+    float pointSpec = dirSpec;
+    float spotSpec = dirSpec;
+
+    lightingShader->setVec3("viewPos", camera->position);
+
+    lightingShader->setVec3("dirLight.ambient",  dirAmbient, dirAmbient, dirAmbient);
+    lightingShader->setVec3("dirLight.diffuse",  dirDiffuse, dirDiffuse, dirDiffuse);
+    lightingShader->setVec3("dirLight.specular", dirSpec, dirSpec, dirSpec);
+    lightingShader->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+
+    lightingShader->setInt("pointCount", pointLightPositions.size());
+    for (int i = 0; i < 4; i++) {
+        std::string uni_name = "pointLights[" + std::to_string(i) + "]";
+        lightingShader->setVec3(uni_name + ".ambient",  pointAmbient, pointAmbient, pointAmbient);
+        lightingShader->setVec3(uni_name + ".diffuse",  pointDiffuse, pointDiffuse, pointDiffuse);
+        lightingShader->setVec3(uni_name + ".specular", pointSpec, pointSpec, pointSpec);
+        lightingShader->setVec3(uni_name + ".position", pointLightPositions[i]);
+        lightingShader->setFloat(uni_name + ".constant",  1.0f);
+        lightingShader->setFloat(uni_name + ".linear",    0.09f);
+        lightingShader->setFloat(uni_name + ".quadratic", 0.032f);
+    }
+
+    lightingShader->setVec3("spotLight.ambient",  spotAmbient, spotAmbient, spotAmbient);
+    lightingShader->setVec3("spotLight.diffuse",  spotDiffuse, spotDiffuse, spotDiffuse);
+    lightingShader->setVec3("spotLight.specular", spotSpec, spotSpec, spotSpec);
+    lightingShader->setVec3("spotLight.position",  camera->position);
+    lightingShader->setVec3("spotLight.direction", camera->front);
+    lightingShader->setFloat("spotLight.cutOff",   glm::cos(glm::radians(12.5f)));
+    lightingShader->setFloat("spotLight.outerCutOff",   glm::cos(glm::radians(17.5f)));
+    lightingShader->setFloat("spotLight.constant",  1.0f);
+    lightingShader->setFloat("spotLight.linear",    0.09f);
+    lightingShader->setFloat("spotLight.quadratic", 0.032f);
+
+    // Material
+    lightingShader->setFloat("material.shininess", 64.0f);
 
     // floor
+    lightingShader->setMat4("view", view);
+    lightingShader->setMat4("projection", projection);
+    lightingShader->setMat4("model", modelMat);
+
     glBindVertexArray(planeVAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, floorTexture);
