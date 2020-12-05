@@ -31,7 +31,8 @@ int Game::start() {
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     // 捕获鼠标
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    if (INSTANCE->control.mouseCap)
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     // 绘制准备
     stage = new Stage;
     stage->prepareDraw();
@@ -52,7 +53,6 @@ void Game::mainLoop() {
         processInput(window);
 
         // 清屏
-        glClearColor(1.0f, 1.0f, 0.7f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // 绘制
@@ -62,6 +62,8 @@ void Game::mainLoop() {
         double currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+
+        stage->idle(deltaTime);
 
         // 交换帧缓冲
         glfwSwapBuffers(window);

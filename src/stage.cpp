@@ -1,119 +1,80 @@
 #include "stage.h"
 #include "vertex_data_textures.h"
+#include "vertices_data.h"
+#include "vertex_snow.h"
 #include "game.h"
+#include "texture.h"
 
 void Stage::prepareDraw() {
     // OpenGL 功能配置
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_BLEND);
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Create shader
-    lightingShader = new Shader("shader/model.vert", "shader/model.frag");
-    lampShader = new Shader("shader/colors.vert", "shader/colors_light.frag");
-
-    // Load model
-    // model/gennso/gennso.pmx
-    // model/MT-MIKU/MT-MIKU.pmx
-    model = new Model("/home/kaaass/Project/graphic/learnopengl/src/toy/model/rin/Black.pmx");
-
+    shader = new Shader("shader/advanced_lighting.vert", "shader/advanced_lighting.frag");
+    normalDisplayShader =
+            new Shader("shader/normalDisplayShader.vert",
+                       "shader/normalDisplayShader.geom",
+                       "shader/normalDisplayShader.frag");
     // Create camera
     camera = new Camera(glm::vec3(1.0f, 1.0f, 5.0f));
 
-    // Create VBO, VAO
-    glGenBuffers(1, &VBO);
-    glGenVertexArrays(1, &lightVAO);
-
-    // Rectangle
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindVertexArray(lightVAO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
+    // plane VAO
+    glGenVertexArrays(1, &planeVAO);
+    glGenBuffers(1, &planeVBO);
+    glBindVertexArray(planeVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vert_snow), vert_snow, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glBindVertexArray(0);
+
+    // Load texture
+    floorTexture = TextureLoader::loadTexture("image/wood.png");
+
+    // shader
+    shader->use();
+    shader->setInt("floorTexture", 0);
+}
+
+void Stage::idle(float delta) {
+
 }
 
 void Stage::drawStaff() {
-    lightingShader->use();
-
     // Projection matrix
     glm::mat4 projection;
     auto &screen = Game::getInstance()->screen;
     projection = glm::perspective(glm::radians(camera->zoom), (float) screen.width / (float) screen.height, 0.1f, 100.0f);
-
-    // Pass the transform matrixs
-    lightingShader->setMat4("view", camera->getViewMatrix());
-    lightingShader->setMat4("projection", projection);
-
-    // Lighting
-    float dirAmbient = 1.0f;
-    float pointAmbient = dirAmbient;
-    float spotAmbient = dirAmbient;
-
-    float dirDiffuse = 0.0f;
-    float pointDiffuse = dirDiffuse;
-    float spotDiffuse = dirDiffuse;
-
-    float dirSpec = 0.0f;
-    float pointSpec = dirSpec;
-    float spotSpec = dirSpec;
-
-    lightingShader->setVec3("viewPos", camera->position);
-
-    lightingShader->setVec3("dirLight.ambient", dirAmbient, dirAmbient, dirAmbient);
-    lightingShader->setVec3("dirLight.diffuse", dirDiffuse, dirDiffuse, dirDiffuse);
-    lightingShader->setVec3("dirLight.specular", dirSpec, dirSpec, dirSpec);
-    lightingShader->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-
-    lightingShader->setInt("pointCount", pointLightPositions.size());
-    for (int i = 0; i < 4; i++) {
-        std::string uni_name = "pointLights[" + std::to_string(i) + "]";
-        lightingShader->setVec3(uni_name + ".ambient", pointAmbient, pointAmbient, pointAmbient);
-        lightingShader->setVec3(uni_name + ".diffuse", pointDiffuse, pointDiffuse, pointDiffuse);
-        lightingShader->setVec3(uni_name + ".specular", pointSpec, pointSpec, pointSpec);
-        lightingShader->setVec3(uni_name + ".position", pointLightPositions[i]);
-        lightingShader->setFloat(uni_name + ".constant", 1.0f);
-        lightingShader->setFloat(uni_name + ".linear", 0.09f);
-        lightingShader->setFloat(uni_name + ".quadratic", 0.032f);
-    }
-
-    lightingShader->setVec3("spotLight.ambient", spotAmbient, spotAmbient, spotAmbient);
-    lightingShader->setVec3("spotLight.diffuse", spotDiffuse, spotDiffuse, spotDiffuse);
-    lightingShader->setVec3("spotLight.specular", spotSpec, spotSpec, spotSpec);
-    lightingShader->setVec3("spotLight.position", camera->position);
-    lightingShader->setVec3("spotLight.direction", camera->front);
-    lightingShader->setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-    lightingShader->setFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
-    lightingShader->setFloat("spotLight.constant", 1.0f);
-    lightingShader->setFloat("spotLight.linear", 0.09f);
-    lightingShader->setFloat("spotLight.quadratic", 0.032f);
-
-    // Material
-    lightingShader->setFloat("material.shininess", 64.0f);
-
-    // Drawing
+    glm::mat4 view = camera->getViewMatrix();
     glm::mat4 modelMat = glm::mat4(1.0f);
-    modelMat = glm::translate(modelMat,
-                              glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
-    modelMat = glm::scale(modelMat, glm::vec3(0.2f, 0.2f, 0.2f));
-    lightingShader->setMat4("model", modelMat);
-    model->draw(*lightingShader);
 
-    // Lamp cube
-    // lampShader->use();
+    shader->use();
+    shader->setVec3("viewPos", camera->position);
+    shader->setVec3("lightPos", lightPos);
+    shader->setInt("blinn", true);
+    shader->setMat4("view", view);
+    shader->setMat4("projection", projection);
 
-    // for (int i = 0; i < pointLightPositions.size(); i++) {
-    //     modelMat = glm::mat4();
-    //     modelMat = glm::translate(modelMat, pointLightPositions[i]);
-    //     modelMat = glm::scale(modelMat, glm::vec3(0.2f));
-    //     lampShader->setMat4("model", modelMat);
-    //     lampShader->setMat4("view", camera->getViewMatrix());
-    //     lampShader->setMat4("projection", projection);
+    // floor
+    glBindVertexArray(planeVAO);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, floorTexture);
+    glDrawArrays(GL_TRIANGLES, 0, 36*6);
 
-    //     glBindVertexArray(lightVAO);
-    //     glDrawArrays(GL_TRIANGLES, 0, 36);
-    // }
+    normalDisplayShader->use();
+    normalDisplayShader->setMat4("projection", projection);
+    normalDisplayShader->setMat4("view", view);
+    normalDisplayShader->setMat4("model", modelMat);
+
+    glDrawArrays(GL_TRIANGLES, 0, 36*6);
 }
 
 Camera *Stage::getCamera() const {
