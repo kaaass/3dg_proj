@@ -1,7 +1,6 @@
 #include "stage.h"
 #include "vertex_data_textures.h"
 #include "vertices_data.h"
-#include "vertex_snow.h"
 #include "game.h"
 #include "texture.h"
 
@@ -23,30 +22,18 @@ void Stage::prepareDraw() {
     // Create camera
     camera = new Camera(glm::vec3(1.0f, 1.0f, 5.0f));
 
-    // plane VAO
-    glGenVertexArrays(1, &planeVAO);
-    glGenBuffers(1, &planeVBO);
-    glBindVertexArray(planeVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vert_snow), vert_snow, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glBindVertexArray(0);
-
-    // Load texture
-    floorTexture = TextureLoader::loadTexture("image/snow.png");
-
     // shader
     shader->use();
     shader->setInt("floorTexture", 0);
+
+    // 雪花
+    snow = new SnowManager;
+    snow->init(100);
 }
 
 void Stage::idle(float delta) {
-
+    // 雪花
+    snow->idle(delta);
 }
 
 void Stage::drawStaff() {
@@ -109,10 +96,11 @@ void Stage::drawStaff() {
     lightingShader->setMat4("projection", projection);
     lightingShader->setMat4("model", modelMat);
 
-    glBindVertexArray(planeVAO);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, floorTexture);
-    glDrawArrays(GL_TRIANGLES, 0, 36*6);
+//    glBindVertexArray(planeVAO);
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindTexture(GL_TEXTURE_2D, floorTexture);
+//    glDrawArrays(GL_TRIANGLES, 0, 36*6);
+    snow->draw();
 
     normalDisplayShader->use();
     normalDisplayShader->setMat4("projection", projection);

@@ -149,3 +149,7 @@ void Game::mouse_callback(GLFWwindow *wind, double xpos, double ypos) {
 void Game::scroll_callback(GLFWwindow *wind, double xoffset, double yoffset) {
     INSTANCE->stage->getCamera()->processMouseScroll((float) yoffset);
 }
+
+Stage *Game::curStage() {
+    return Game::INSTANCE->stage;
+}

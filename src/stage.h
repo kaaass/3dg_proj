@@ -4,6 +4,7 @@
 #include "shader.h"
 #include "camera.h"
 #include "model.h"
+#include "snowmanager.h"
 
 class Stage {
     Shader *lightingShader = nullptr;
@@ -19,6 +20,8 @@ class Stage {
     unsigned int lightVAO;
     unsigned int planeVAO;
     unsigned int floorTexture;
+
+    SnowManager * snow = nullptr;
 
     glm::vec3 lightPos;
 

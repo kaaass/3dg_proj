@@ -65,6 +65,8 @@ private:
 public:
 
     static Game * getInstance();
+
+    static Stage *curStage() ;
 };
 
 #endif //INC_3DG_PROJ_GAME_H
