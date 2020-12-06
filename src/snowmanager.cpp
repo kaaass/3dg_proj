@@ -2,17 +2,18 @@
 #include "game.h"
 #include "vertex_snow.h"
 #include "texture.h"
+#include "lighting.h"
 
 #define R_ACC 100
 #define R_0_1 ((float)(rand() % R_ACC)/R_ACC)
 
 void SnowManager::init(int pN) {
     // 初始化 shader
-    shader = new Shader("shader/snow.vert", "shader/advanced_lighting.frag");
+    shader = new Shader("shader/snow.vert", "shader/snow.frag");
     // 初始化材质
     texture = TextureLoader::loadTexture("image/snow.png");
     shader->use();
-    shader->setInt("material.floorTexture", 0);
+    shader->setInt("material.texture_diffuse1", 0);
     // 初始化顶点
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &vertVBO);
@@ -86,6 +87,13 @@ void SnowManager::draw() {
     glBufferData(GL_ARRAY_BUFFER, n * 6 * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     delete[] modelMatrices;
+
+    // 光照
+    Lighting::getDefault()->useShader(shader);
+
+    // 材质
+    shader->setFloat("material.shininess", 64.0f);
+
     // 视图、投影矩阵
     glm::mat4 projection;
     auto &screen = Game::getInstance()->screen;
@@ -93,31 +101,6 @@ void SnowManager::draw() {
     projection = glm::perspective(glm::radians(camera->zoom), (float) screen.width / (float) screen.height, 0.1f,
                                   100.0f);
     glm::mat4 view = camera->getViewMatrix();
-    // 光照
-    shader->use();
-    float dirAmbient = 1.0f;
-    float pointAmbient = dirAmbient;
-    float spotAmbient = dirAmbient;
-
-    float dirDiffuse = 0.0f;
-    float pointDiffuse = dirDiffuse;
-    float spotDiffuse = dirDiffuse;
-
-    float dirSpec = 0.0f;
-    float pointSpec = dirSpec;
-    float spotSpec = dirSpec;
-
-    shader->setVec3("dirLight.ambient", dirAmbient, dirAmbient, dirAmbient);
-    shader->setVec3("dirLight.diffuse", dirDiffuse, dirDiffuse, dirDiffuse);
-    shader->setVec3("dirLight.specular", dirSpec, dirSpec, dirSpec);
-    shader->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-
-    shader->setInt("pointCount", 0);
-
-    // Material
-    shader->setFloat("material.shininess", 64.0f);
-
-    // floor
     shader->setMat4("view", view);
     shader->setMat4("projection", projection);
 
