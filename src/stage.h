@@ -5,34 +5,24 @@
 #include "camera.h"
 #include "model.h"
 #include "snowmanager.h"
+#include "sphere.h"
 
 class Stage {
-    Shader *lightingShader = nullptr;
-    Shader *lampShader = nullptr;
     Shader *shader = nullptr;
-    Shader* normalDisplayShader = nullptr;
+    Shader *standardShader = nullptr;
 
     Camera *camera = nullptr;
     Model *model = nullptr;
 
-    unsigned int VBO;
-    unsigned int planeVBO;
-    unsigned int lightVAO;
-    unsigned int planeVAO;
-    unsigned int floorTexture;
-
     SnowManager * snow = nullptr;
 
-    glm::vec3 lightPos;
+    std::vector<Sphere> spheres;
 
-    std::vector<glm::vec3> pointLightPositions = {
-            glm::vec3(3.7f, 3.2f, 2.0f),
-            glm::vec3(2.3f, -3.3f, -4.0f)
-    };
+    uint floorTexture;
 
 public:
 
-    Stage(): lightPos(0.0f, 0.0f, 0.0f) { }
+    Stage() = default;
 
     void prepareDraw();
 

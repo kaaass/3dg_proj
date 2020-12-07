@@ -4,6 +4,10 @@
 
 struct Material {
     sampler2D texture_diffuse1;
+    sampler2D texture_diffuse2;
+    sampler2D texture_diffuse3;
+    sampler2D texture_specular1;
+    sampler2D texture_specular2;
     float     shininess;
 };
 
@@ -83,8 +87,8 @@ vec4 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
     // 漫反射着色
     float diff = max(dot(normal, lightDir), 0.0);
     // 镜面光着色
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
     // 合并结果
     vec4 ambient  = vec4(light.ambient, 1.0) * texture(material.texture_diffuse1, TexCoords);
     vec4 diffuse  = vec4(light.diffuse, 1.0)  * diff * texture(material.texture_diffuse1, TexCoords);
@@ -97,8 +101,8 @@ vec4 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     // 漫反射着色
     float diff = max(dot(normal, lightDir), 0.0);
     // 镜面光着色
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
     // 衰减
     float distance    = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance +
@@ -125,8 +129,8 @@ vec4 CalcSpotLight(SpotLight light, vec3 norm, vec3 fragPos, vec3 viewDir) {
 
     // Specular Highlight
     float specularStrength = 0.5;
-    vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(norm, halfwayDir), 0.0), material.shininess);
     vec4 specular = vec4(light.specular, 1.0) * spec; // * texture(material.texture_specular1, TexCoords);
 
     // Attenuation

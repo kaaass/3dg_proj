@@ -9,11 +9,13 @@
 
 void SnowManager::init(int pN) {
     // 初始化 shader
-    shader = new Shader("shader/snow.vert", "shader/snow.frag");
+    shader = new Shader("shader/snow.vert", "shader/standard.frag");
     // 初始化材质
     texture = TextureLoader::loadTexture("image/snow.png");
+    textureSpecular = TextureLoader::loadTexture("image/snow_specular.png");
     shader->use();
     shader->setInt("material.texture_diffuse1", 0);
+    shader->setInt("material.texture_specular1", 1);
     // 初始化顶点
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &vertVBO);
@@ -107,6 +109,8 @@ void SnowManager::draw() {
     glBindVertexArray(VAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, textureSpecular);
     glDrawArraysInstanced(GL_TRIANGLES, 0, 36 * 6, n * 6);
 }
 
