@@ -8,8 +8,9 @@ void Stage::prepareDraw() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_BLEND);
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glFrontFace(GL_CCW);
 
     // 着色器
     standardShader = new Shader("shader/standard.vert", "shader/standard.frag");
@@ -41,9 +42,12 @@ void Stage::idle(float delta) {
 
 void Stage::drawStaff() {
     // 雪花
+    glEnable(GL_CULL_FACE);
     snow->draw();
+    glDisable(GL_CULL_FACE);
 
     // 球体
+    glEnable(GL_CULL_FACE);
     // 蹭一个雪花材质
     standardShader->use();
     standardShader->setFloat("material.shininess", 64.0f);
@@ -55,6 +59,7 @@ void Stage::drawStaff() {
     glBindTexture(GL_TEXTURE_2D, 0);
     standardShader->setFloat("material.shininess", 16.0f);
     spheres[1].draw(standardShader);
+    glDisable(GL_CULL_FACE);
 
     // 天空盒
     skybox->drawLast();
