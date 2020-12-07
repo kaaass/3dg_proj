@@ -56,3 +56,7 @@ void Skybox::drawLast() {
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glDepthFunc(GL_LESS);
 }
+
+uint Skybox::getCubemapTexture() const {
+    return cubemapTexture;
+}

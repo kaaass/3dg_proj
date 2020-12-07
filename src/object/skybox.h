@@ -21,6 +21,8 @@ public:
 
     void drawLast();
 
+    uint getCubemapTexture() const;
+
 };
 
 

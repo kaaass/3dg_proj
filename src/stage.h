@@ -10,6 +10,8 @@
 
 class Stage {
     Shader *standardShader = nullptr;
+    Shader *glassShader = nullptr;
+    Shader *mirrorShader = nullptr;
 
     Camera *camera = nullptr;
     Model *model = nullptr;

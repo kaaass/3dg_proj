@@ -14,6 +14,8 @@ void Stage::prepareDraw() {
 
     // 着色器
     standardShader = new Shader("shader/standard.vert", "shader/standard.frag");
+    glassShader = new Shader("shader/standard.vert", "shader/glass.frag");
+    mirrorShader = new Shader("shader/standard.vert", "shader/mirror.frag");
 
     // 照相机
     camera = new Camera(glm::vec3(1.0f, 1.0f, 5.0f));
@@ -26,8 +28,8 @@ void Stage::prepareDraw() {
     snow->init(100);
 
     // 球体
-    for (int i = 0; i < 2; i++) {
-        spheres.emplace_back(glm::vec3{i * 3, 0, 0});
+    for (int i = 0; i < 4; i++) {
+        spheres.emplace_back(glm::vec3{(i - 1.5) * 3, 0, 0});
     }
 
     // 天空盒
@@ -50,15 +52,28 @@ void Stage::drawStaff() {
     glEnable(GL_CULL_FACE);
     // 蹭一个雪花材质
     standardShader->use();
+    standardShader->setInt("material.texture_diffuse1", 0);
+    standardShader->setInt("material.texture_specular1", 1);
     standardShader->setFloat("material.shininess", 64.0f);
     spheres[0].draw(standardShader);
     // 木板材质
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, Texture::of("wood"));
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_2D, Texture::of("wood_specular"));
     standardShader->setFloat("material.shininess", 16.0f);
     spheres[1].draw(standardShader);
+    // 镜面球
+    mirrorShader->use();
+    mirrorShader->setVec3("cameraPos", camera->position);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->getCubemapTexture());
+    spheres[2].draw(mirrorShader);
+    // 玻璃球
+    glassShader->use();
+    glassShader->setVec3("cameraPos", camera->position);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->getCubemapTexture());
+    spheres[3].draw(glassShader);
+    //
     glDisable(GL_CULL_FACE);
 
     // 天空盒
