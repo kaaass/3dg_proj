@@ -1,5 +1,6 @@
 #include <iostream>
 #include "game.h"
+#include "lighting.h"
 
 Game *Game::INSTANCE = nullptr;
 
@@ -108,6 +109,24 @@ void Game::processInput(GLFWwindow *wind) {
         camera->processKeyboard(LEFT, deltaTime);
     if (glfwGetKey(wind, GLFW_KEY_D) == GLFW_PRESS)
         camera->processKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(wind, GLFW_KEY_UP) == GLFW_PRESS) {
+        INSTANCE->stage->getCamera()->processMouseScroll(deltaTime * 10);
+    }
+    if (glfwGetKey(wind, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        INSTANCE->stage->getCamera()->processMouseScroll(-deltaTime * 10);
+    }
+    // 方向光源
+    if (glfwGetKey(wind, GLFW_KEY_L) == GLFW_PRESS) {
+        static double lstL = 0;
+        double now = glfwGetTime();
+        if (now - lstL > 0.2) {
+            Lighting::getDefault()->setDir(!Lighting::getDefault()->isDir());
+            lstL = now;
+        }
+    }
+    // TODO 雪花材质
+    if (glfwGetKey(wind, GLFW_KEY_T) == GLFW_PRESS) {
+    }
     // 释放鼠标
     bool &mouseCap = INSTANCE->control.mouseCap;
     static double lstChangeMouse = 0;

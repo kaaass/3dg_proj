@@ -25,7 +25,10 @@ void Stage::prepareDraw() {
     camera = new Camera(glm::vec3(1.0f, 1.0f, 5.0f));
 
     // 光照
-    Lighting::getDefault()->init(0);
+    Lighting::getDefault()->init(4);
+    for (int i = 0; i < 4; i++) {
+        Lighting::getDefault()->pointPos(i, glm::vec3{(i - 1.5) * 3, 0.5, -2});
+    }
 
     // 雪花
     snow = new SnowManager;
@@ -47,6 +50,9 @@ void Stage::prepareDraw() {
 void Stage::idle(float delta) {
     // 雪花
     snow->idle(delta);
+
+    // 光照
+    Lighting::getDefault()->idle(delta);
 }
 
 void Stage::drawStaff() {

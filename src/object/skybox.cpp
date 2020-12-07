@@ -4,6 +4,7 @@
 #include <game.h>
 #include <object/vertices_data.h>
 #include <texture.h>
+#include <lighting.h>
 
 void Skybox::init() {
     // 顶点
@@ -47,10 +48,17 @@ void Skybox::drawLast() {
     shader->setMat4("projection", projection);
 
     // 绘制
+    float light = 1.0f;
+    if (Lighting::getDefault()->isDir()) {
+        light = -Lighting::getDefault()->getDirection()[1];
+        if (light < 0.1)
+            light = 0.1;
+    }
     glDepthFunc(GL_LEQUAL);
     shader->use();
     shader->setMat4("view", glm::mat4(glm::mat3(view)));
     shader->setMat4("projection", projection);
+    shader->setFloat("light", light);
     glBindVertexArray(VAO);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
     glDrawArrays(GL_TRIANGLES, 0, 36);

@@ -26,9 +26,9 @@ public:
         float linear = 0.09f;
         float quadratic = 0.032f;
 
-        glm::vec3 ambient{0.2f, 0.2f, 0.2f};
-        glm::vec3 diffuse{0.5f, 0.5f, 0.5f};
-        glm::vec3 specular{0.8f, 0.8f, 0.8f};
+        glm::vec3 ambient{0.1f, 0.1f, 0.1f};
+        glm::vec3 diffuse{0.4f, 0.4f, 0.4f};
+        glm::vec3 specular{0.6f, 0.6f, 0.6f};
     };
 
     struct SpotLight {
@@ -53,15 +53,28 @@ private:
 
     int pointLightCount;
 
+    bool dir = true;
+    float angle = -60.0f;
+
     static Lighting *INSTANCE;
 
 public:
 
     void init(int pPointLightCount);
 
+    void idle(float delta);
+
+    void pointPos(int i, glm::vec3 pos);
+
     void useShader(Shader *shader);
 
     static Lighting *getDefault();
+
+    [[nodiscard]] glm::vec3 getDirection() const;
+
+    bool isDir() const;
+
+    void setDir(bool dir);
 };
 
 
