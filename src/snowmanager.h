@@ -28,8 +28,6 @@ private:
     uint VAO;
     uint vertVBO;
     uint instanceVBO;
-    uint texture;
-    uint textureSpecular;
 
 public:
 

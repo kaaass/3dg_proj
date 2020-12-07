@@ -13,8 +13,6 @@ void Stage::prepareDraw() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    floorTexture = TextureLoader::loadTexture("image/wood.png");
-
     // 着色器
     shader = new Shader("shader/advanced_lighting.vert", "shader/advanced_lighting.frag");
     standardShader = new Shader("shader/standard.vert", "shader/standard.frag");
@@ -49,7 +47,7 @@ void Stage::drawStaff() {
     spheres[0].draw(standardShader);
     // 木板材质
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, floorTexture);
+    glBindTexture(GL_TEXTURE_2D, TextureLoader::of("wood"));
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, 0);
     spheres[1].draw(standardShader);

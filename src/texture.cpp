@@ -82,3 +82,12 @@ unsigned int TextureLoader::loadCubemap(std::vector<std::string> faces) {
 
     return textureID;
 }
+
+std::map<std::string, unsigned int> TextureLoader::TEXTURE_CACHE;
+
+unsigned int TextureLoader::of(const std::string& id) {
+    if (TEXTURE_CACHE.count(id) <= 0) {
+        TEXTURE_CACHE[id] = loadTexture("image/" + id + ".png");
+    }
+    return TEXTURE_CACHE[id];
+}

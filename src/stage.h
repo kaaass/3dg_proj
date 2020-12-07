@@ -18,8 +18,6 @@ class Stage {
 
     std::vector<Sphere> spheres;
 
-    uint floorTexture;
-
 public:
 
     Stage() = default;
