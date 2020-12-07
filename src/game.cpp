@@ -31,6 +31,7 @@ int Game::start() {
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
     // 捕获鼠标
     if (INSTANCE->control.mouseCap)
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -94,7 +95,7 @@ void Game::framebuffer_size_callback(GLFWwindow *wind, int width, int height) {
 }
 
 void Game::processInput(GLFWwindow *wind) {
-    Camera *camera = INSTANCE->stage->getCamera();
+    auto *camera = INSTANCE->stage->getCamera();
     float &deltaTime = INSTANCE->control.deltaTime;
 
     if (glfwGetKey(wind, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -110,10 +111,10 @@ void Game::processInput(GLFWwindow *wind) {
     if (glfwGetKey(wind, GLFW_KEY_D) == GLFW_PRESS)
         camera->processKeyboard(RIGHT, deltaTime);
     if (glfwGetKey(wind, GLFW_KEY_UP) == GLFW_PRESS) {
-        INSTANCE->stage->getCamera()->processMouseScroll(deltaTime * 10);
+        camera->processMouseScroll(deltaTime * 10);
     }
     if (glfwGetKey(wind, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        INSTANCE->stage->getCamera()->processMouseScroll(-deltaTime * 10);
+        camera->processMouseScroll(-deltaTime * 10);
     }
     // 方向光源
     if (glfwGetKey(wind, GLFW_KEY_L) == GLFW_PRESS) {
@@ -126,6 +127,28 @@ void Game::processInput(GLFWwindow *wind) {
     }
     // TODO 雪花材质
     if (glfwGetKey(wind, GLFW_KEY_T) == GLFW_PRESS) {
+        static double lstT = 0;
+        double now = glfwGetTime();
+        if (now - lstT > 0.2) {
+            //
+            lstT = now;
+        }
+    }
+    // 相机操作
+    if (glfwGetKey(wind, GLFW_KEY_C) == GLFW_PRESS) {
+        static double lstC = 0;
+        double now = glfwGetTime();
+        if (now - lstC > 0.2) {
+            int mode = camera->changeMode();
+            if (mode == Camera::MODE_DRAG) {
+                INSTANCE->control.mouseCap = false;
+                glfwSetInputMode(wind, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            } else if (mode == Camera::MODE_FPS) {
+                INSTANCE->control.mouseCap = true;
+                glfwSetInputMode(wind, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            }
+            lstC = now;
+        }
     }
     // 释放鼠标
     bool &mouseCap = INSTANCE->control.mouseCap;
@@ -135,6 +158,8 @@ void Game::processInput(GLFWwindow *wind) {
         if (now - lstChangeMouse > 0.2) {
             lstChangeMouse = now;
             mouseCap = !mouseCap;
+            if (camera->mode == Camera::MODE_DRAG)
+                mouseCap = false;
             if (mouseCap) {
                 glfwSetInputMode(wind, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             } else {
@@ -161,8 +186,19 @@ void Game::mouse_callback(GLFWwindow *wind, double xpos, double ypos) {
     lastX = (float) xpos;
     lastY = (float) ypos;
 
-    if (mouseCap)
+    auto *camera = INSTANCE->stage->getCamera();
+    if (camera->mode == Camera::MODE_DRAG && glfwGetMouseButton(INSTANCE->window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS
+        || camera->mode == Camera::MODE_FPS && mouseCap) {
         INSTANCE->stage->getCamera()->processMouseMovement(xoffset, yoffset);
+    }
+}
+
+void Game::mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
+//    if (action == GLFW_PRESS) {
+//        INSTANCE->stage->getCamera()->mousePressed = button == GLFW_MOUSE_BUTTON_LEFT;
+//        std::cout << INSTANCE->stage->getCamera()->mousePressed << std::endl;
+//    }
+//    INSTANCE->stage->getCamera()->mousePressed = false;
 }
 
 void Game::scroll_callback(GLFWwindow *wind, double xoffset, double yoffset) {

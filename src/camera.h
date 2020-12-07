@@ -19,6 +19,10 @@ enum CameraMovement {
  */
 class Camera {
 public:
+    static const int MODE_FPS = 0;
+    static const int MODE_AUTO = 1;
+    static const int MODE_DRAG = 2;
+
     // 相机默认参数
     constexpr static const float YAW = -90.0f;
     constexpr static const float PITCH = 0.0f;
@@ -39,6 +43,8 @@ public:
     float movementSpeed;
     float mouseSensitivity;
     float zoom;
+    int mode = MODE_FPS;
+    float angle = 90;
 
     /**
      * 向量初始化
@@ -67,6 +73,10 @@ public:
      * 鼠标滚轮
      */
     void processMouseScroll(float yoffset);
+
+    int changeMode();
+
+    void idle(float delta);
 
 private:
     /**

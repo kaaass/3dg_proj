@@ -1,3 +1,4 @@
+#include <iostream>
 #include "camera.h"
 
 Camera::Camera(glm::vec3 pPosition, glm::vec3 pUp, float pYaw, float pPitch) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(SPEED),
@@ -19,10 +20,15 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float u
 }
 
 glm::mat4 Camera::getViewMatrix() const {
+    if (mode == MODE_AUTO)
+        return glm::lookAt(position, glm::vec3{0, 0, 0}, glm::vec3{0, 1, 0});
     return glm::lookAt(position, position + front, up);
 }
 
 void Camera::processKeyboard(CameraMovement direction, float deltaTime) {
+    if (mode == MODE_AUTO)
+        return;
+
     float velocity = movementSpeed * deltaTime;
     if (direction == FORWARD)
         position += front * velocity;
@@ -35,6 +41,13 @@ void Camera::processKeyboard(CameraMovement direction, float deltaTime) {
 }
 
 void Camera::processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch) {
+    if (mode == MODE_DRAG) {
+        xoffset = -xoffset;
+        yoffset = -yoffset;
+    } else if (mode == MODE_AUTO) {
+        return;
+    }
+
     xoffset *= mouseSensitivity;
     yoffset *= mouseSensitivity;
 
@@ -70,7 +83,22 @@ void Camera::updateCameraVectors() {
     tFront.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     front = glm::normalize(tFront);
     // 计算右、上
-    right = glm::normalize(glm::cross(front,
-                                      worldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+    right = glm::normalize(glm::cross(front, worldUp));
     up = glm::normalize(glm::cross(right, front));
+}
+
+int Camera::changeMode() {
+    mode++;
+    if (mode > 2)
+        mode = 0;
+    std::cout << "Change mode: " << mode << std::endl;
+    return mode;
+}
+
+void Camera::idle(float delta) {
+    if (mode == MODE_AUTO) {
+        angle += delta * 10;
+
+        position = glm::vec3{cos(angle / 180 * 3.1415) * 10, 3.0, sin(angle / 180 * 3.1415) * 10};
+    }
 }

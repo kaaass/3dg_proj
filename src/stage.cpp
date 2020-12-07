@@ -53,6 +53,9 @@ void Stage::idle(float delta) {
 
     // 光照
     Lighting::getDefault()->idle(delta);
+
+    // 摄像机
+    camera->idle(delta);
 }
 
 void Stage::drawStaff() {

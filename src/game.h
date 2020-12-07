@@ -52,6 +52,8 @@ private:
 
     static void mouse_callback(GLFWwindow *wind, double xpos, double ypos);
 
+    static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+
     static void scroll_callback(GLFWwindow *wind, double xoffset, double yoffset);
 
     static void processInput(GLFWwindow *wind);
