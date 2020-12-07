@@ -12,6 +12,7 @@ class Stage {
     Shader *standardShader = nullptr;
     Shader *glassShader = nullptr;
     Shader *mirrorShader = nullptr;
+    std::vector<Shader *> modelShaders{nullptr, nullptr, nullptr, nullptr};
 
     Camera *camera = nullptr;
     Model *model = nullptr;
@@ -40,7 +41,13 @@ public:
         delete model;
         delete snow;
         delete skybox;
+        for (auto p: modelShaders)
+            delete p;
     }
+
+private:
+
+    void drawModels();
 };
 
 
