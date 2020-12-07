@@ -8,13 +8,13 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <assimp/postprocess.h>
 
-struct Vertex {
+struct ModelVertex {
     glm::vec3 Position;
     glm::vec3 Normal;
     glm::vec2 TexCoords;
 };
 
-struct Texture {
+struct ModelTexture {
     unsigned int id;
     std::string type;
     aiString path;
@@ -28,14 +28,14 @@ public:
 
     /*  网格数据  */
 
-    std::vector<Vertex> vertices;
+    std::vector<ModelVertex> vertices;
     std::vector<unsigned int> indices;
-    std::vector<Texture> textures;
+    std::vector<ModelTexture> textures;
 
     /*  函数  */
 
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
-         std::vector<Texture> textures);
+    Mesh(std::vector<ModelVertex> vertices, std::vector<unsigned int> indices,
+         std::vector<ModelTexture> textures);
 
     void draw(Shader shader);
 

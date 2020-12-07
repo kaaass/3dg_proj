@@ -4,7 +4,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-unsigned int TextureLoader::textureFromFile(std::string filepath, std::string directory) {
+unsigned int Texture::textureFromFile(std::string filepath, std::string directory) {
     int pos = 0;
     // Win路径修正
     while ((pos = filepath.find("\\")) >= 0) {
@@ -14,7 +14,7 @@ unsigned int TextureLoader::textureFromFile(std::string filepath, std::string di
     return loadTexture(filepath);
 }
 
-unsigned int TextureLoader::loadTexture(std::string filepath, int warp_s, int warp_t, bool gammaCorrection) {
+unsigned int Texture::loadTexture(std::string filepath, int warp_s, int warp_t, bool gammaCorrection) {
     unsigned int texture = 0;
     std::cout << " :- - Start loading texture: " << filepath << std::endl;
     // Create texture
@@ -54,7 +54,7 @@ unsigned int TextureLoader::loadTexture(std::string filepath, int warp_s, int wa
     return texture;
 }
 
-unsigned int TextureLoader::loadCubemap(std::vector<std::string> faces) {
+unsigned int Texture::loadCubemap(std::vector<std::string> faces) {
     unsigned int textureID;
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
@@ -83,9 +83,9 @@ unsigned int TextureLoader::loadCubemap(std::vector<std::string> faces) {
     return textureID;
 }
 
-std::map<std::string, unsigned int> TextureLoader::TEXTURE_CACHE;
+std::map<std::string, unsigned int> Texture::TEXTURE_CACHE;
 
-unsigned int TextureLoader::of(const std::string& id) {
+unsigned int Texture::of(const std::string& id) {
     if (TEXTURE_CACHE.count(id) <= 0) {
         TEXTURE_CACHE[id] = loadTexture("image/" + id + ".png");
     }

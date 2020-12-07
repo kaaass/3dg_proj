@@ -106,9 +106,9 @@ void SnowManager::draw() {
 
     glBindVertexArray(VAO);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, TextureLoader::of("snow"));
+    glBindTexture(GL_TEXTURE_2D, Texture::of("snow"));
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, TextureLoader::of("snow_specular"));
+    glBindTexture(GL_TEXTURE_2D, Texture::of("snow_specular"));
     glDrawArraysInstanced(GL_TRIANGLES, 0, 36 * 6, n * 6);
 }
 

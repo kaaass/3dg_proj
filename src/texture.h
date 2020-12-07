@@ -6,7 +6,7 @@
 #include <vector>
 #include <map>
 
-class TextureLoader {
+class Texture {
 
     static std::map<std::string, unsigned int> TEXTURE_CACHE;
 

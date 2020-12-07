@@ -54,14 +54,14 @@ void Model::processNode(aiNode *node, const aiScene *scene, int layerCnt) {
 }
 
 Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
-    std::vector<Vertex> vertices;
+    std::vector<ModelVertex> vertices;
     std::vector<unsigned int> indices;
-    std::vector<Texture> textures;
+    std::vector<ModelTexture> textures;
 #ifdef PRINT_MESH
     std::cout << " :- mesh: " << mesh->mName.C_Str() << std::endl;
 #endif
     for (int i = 0; i < mesh->mNumVertices; i++) {
-        Vertex vertex{};
+        ModelVertex vertex{};
         glm::vec3 vector;
         // Vertex
         vector.x = mesh->mVertices[i].x;
@@ -94,20 +94,20 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
     if (mesh->mMaterialIndex >= 0) {
         aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
         // diffuse maps
-        std::vector<Texture> diffuseMaps = loadMaterialTextures(material,
-                                                                aiTextureType_DIFFUSE, "texture_diffuse");
+        std::vector<ModelTexture> diffuseMaps = loadMaterialTextures(material,
+                                                                     aiTextureType_DIFFUSE, "texture_diffuse");
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
         // specular maps
-        std::vector<Texture> specularMaps = loadMaterialTextures(material,
-                                                                 aiTextureType_SPECULAR, "texture_specular");
+        std::vector<ModelTexture> specularMaps = loadMaterialTextures(material,
+                                                                      aiTextureType_SPECULAR, "texture_specular");
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     }
 
     return Mesh(vertices, indices, textures);
 }
 
-std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string& typeName) {
-    std::vector<Texture> textures;
+std::vector<ModelTexture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string& typeName) {
+    std::vector<ModelTexture> textures;
     for (int i = 0; i < mat->GetTextureCount(type); i++) {
         aiString str;
         mat->GetTexture(type, i, &str);
@@ -120,8 +120,8 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
             }
         }
         if (!skip) {
-            Texture texture;
-            texture.id = TextureLoader::textureFromFile(str.C_Str(), directory);
+            ModelTexture texture;
+            texture.id = Texture::textureFromFile(str.C_Str(), directory);
             texture.type = typeName;
             texture.path = str;
             textures.push_back(texture);

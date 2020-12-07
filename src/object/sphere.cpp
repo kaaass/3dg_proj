@@ -166,9 +166,6 @@ Sphere::Sphere(glm::vec3 pos, float radius, int sectorCount, int stackCount)
 void Sphere::draw(Shader *shader) {
     Lighting::getDefault()->useShader(shader);
 
-    // 材质
-    shader->setFloat("material.shininess", 64.0f);
-
     // 视图、投影矩阵
     glm::mat4 projection;
     auto &screen = Game::getInstance()->screen;
