@@ -16,9 +16,11 @@ class Stage {
     Shader *mirrorShader = nullptr;
     std::vector<Shader *> modelShaders{nullptr, nullptr, nullptr, nullptr};
     Shader *depthShader = nullptr;
+    Shader *mmdShader = nullptr;
 
     Camera *camera = nullptr;
     Model *model = nullptr;
+    Model *mmdModel = nullptr;
 
     SnowManager *snow = nullptr;
 

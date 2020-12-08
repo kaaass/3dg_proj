@@ -21,6 +21,7 @@ void Stage::prepareDraw() {
     modelShaders[2] = new Shader("shader/calc_norm.vert", "shader/calc_norm.geom", "shader/mirror.frag");
     modelShaders[3] = new Shader("shader/calc_norm.vert", "shader/calc_norm.geom", "shader/glass.frag");
     depthShader = new Shader("shader/depth.vert", "shader/empty.frag");
+    mmdShader = new Shader("shader/standard.vert", "shader/mmd.frag");
     prepareShadow();
 
     // 照相机
@@ -51,6 +52,7 @@ void Stage::prepareDraw() {
 
     // 模型
     model = new Model("model/lucy.obj");
+    mmdModel = new Model("model/rin/Black.pmx");
 
     // 文本
     text = new Text;
@@ -133,16 +135,16 @@ Camera *Stage::getCamera() const {
 
 void Stage::drawModels() {
     glEnable(GL_CULL_FACE);
+    glm::mat4 projection;
+    auto &screen = Game::getInstance()->screen;
+    projection = glm::perspective(glm::radians(camera->zoom), (float) screen.width / (float) screen.height, 0.1f,
+                                  100.0f);
+    glm::mat4 view = camera->getViewMatrix();
     for (int i = 0; i < modelShaders.size(); i++) {
         auto shader = modelShaders[i];
         // 光照
         Lighting::getDefault()->useShader(shader);
-        // 各类矩阵
-        glm::mat4 projection;
-        auto &screen = Game::getInstance()->screen;
-        projection = glm::perspective(glm::radians(camera->zoom), (float) screen.width / (float) screen.height, 0.1f,
-                                      100.0f);
-        glm::mat4 view = camera->getViewMatrix();
+        // model 矩阵
         glm::mat4 modelMat = glm::mat4(1.0f);
         modelMat = glm::translate(modelMat, glm::vec3{(i - 1.5) * 3 - 0.4, 0, -4});
         modelMat = glm::scale(modelMat, glm::vec3(1.0) * 0.015f);
@@ -173,6 +175,18 @@ void Stage::drawModels() {
         // 绘制
         model->draw(*shader);
     }
+    // MMD
+    Lighting::getDefault()->useShader(mmdShader);
+    // model 矩阵
+    glm::mat4 modelMat = glm::mat4(1.0f);
+    modelMat = glm::translate(modelMat, glm::vec3{0, 0, 3});
+    modelMat = glm::scale(modelMat, glm::vec3(1.0 / 6));
+    mmdShader->setMat4("view", view);
+    mmdShader->setMat4("projection", projection);
+    mmdShader->setMat4("model", modelMat);
+    // 绘制
+    mmdShader->setFloat("material.shininess", 8.0f);
+    mmdModel->draw(*mmdShader);
     glDisable(GL_CULL_FACE);
 }
 
@@ -210,6 +224,15 @@ void Stage::drawShadow() {
         // 绘制
         model->draw(*depthShader);
     }
+    // MMD
+    // model 矩阵
+    glm::mat4 modelMat = glm::mat4(1.0f);
+    modelMat = glm::translate(modelMat, glm::vec3{0, 0, 3});
+    modelMat = glm::scale(modelMat, glm::vec3(1.0 / 6));
+    depthShader->setMat4("model", modelMat);
+    // 绘制
+    depthShader->setFloat("material.shininess", 8.0f);
+    mmdModel->draw(*depthShader);
     // 结束绘制
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -223,6 +246,9 @@ void Stage::drawShadow() {
     modelShaders[0]->use();
     modelShaders[0]->setMat4("lightSpaceMatrix", lightSpaceMatrix);
     modelShaders[0]->setInt("shadowMap", 6);
+    mmdShader->use();
+    mmdShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+    mmdShader->setInt("shadowMap", 6);
 }
 
 void Stage::prepareShadow() {
