@@ -3,6 +3,7 @@
 
 #include <object/skybox.h>
 #include <object/text.h>
+#include <object/plane.h>
 #include "shader.h"
 #include "camera.h"
 #include "model.h"
@@ -25,6 +26,8 @@ class Stage {
     Skybox *skybox = nullptr;
 
     Text *text = nullptr;
+
+    Plane *plane = nullptr;
 
 public:
 

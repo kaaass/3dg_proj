@@ -30,6 +30,10 @@ void Stage::prepareDraw() {
         Lighting::getDefault()->pointPos(i, glm::vec3{(i - 1.5) * 3, 0.5, -2});
     }
 
+    // 地板
+    plane = new Plane;
+    plane->init();
+
     // 雪花
     snow = new SnowManager;
     snow->init(100);
@@ -66,6 +70,9 @@ void Stage::idle(float delta) {
 }
 
 void Stage::drawStaff() {
+    // 地板
+    plane->draw(standardShader);
+
     // 雪花
     glEnable(GL_CULL_FACE);
     snow->draw();
