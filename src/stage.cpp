@@ -151,3 +151,7 @@ void Stage::drawModels() {
     }
     glDisable(GL_CULL_FACE);
 }
+
+SnowManager *Stage::getSnow() const {
+    return snow;
+}

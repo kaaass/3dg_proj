@@ -17,6 +17,7 @@ public:
 
 private:
     std::vector<Snow> snows;
+    std::vector<Snow> generatedSnow;
 
     Shader *shader = nullptr;
 
@@ -38,6 +39,8 @@ public:
     void draw();
 
     void idle(float d);
+
+    void spawnOnScreen(float x, float y);
 
     virtual ~SnowManager() { delete shader; }
 };

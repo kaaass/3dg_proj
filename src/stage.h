@@ -45,6 +45,8 @@ public:
             delete p;
     }
 
+    SnowManager *getSnow() const;
+
 private:
 
     void drawModels();

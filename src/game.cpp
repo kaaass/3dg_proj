@@ -194,11 +194,19 @@ void Game::mouse_callback(GLFWwindow *wind, double xpos, double ypos) {
 }
 
 void Game::mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
-//    if (action == GLFW_PRESS) {
-//        INSTANCE->stage->getCamera()->mousePressed = button == GLFW_MOUSE_BUTTON_LEFT;
-//        std::cout << INSTANCE->stage->getCamera()->mousePressed << std::endl;
-//    }
-//    INSTANCE->stage->getCamera()->mousePressed = false;
+    if (action == GLFW_PRESS) {
+        if (button == GLFW_MOUSE_BUTTON_LEFT) {
+            static double lstClick = 0;
+            double now = glfwGetTime();
+            if (now - lstClick > 0.2) {
+                // 生成雪花
+                double xpos, ypos;
+                glfwGetCursorPos(INSTANCE->window, &xpos, &ypos);
+                Game::curStage()->getSnow()->spawnOnScreen(xpos, ypos);
+                lstClick = now;
+            }
+        }
+    }
 }
 
 void Game::scroll_callback(GLFWwindow *wind, double xoffset, double yoffset) {
