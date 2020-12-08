@@ -49,6 +49,7 @@ struct SpotLight {
 in vec3 Normal;
 in vec3 FragPos;
 in vec2 TexCoords;
+in vec4 FragPosLightSpace;
 
 out vec4 FragColor;
 
@@ -59,12 +60,15 @@ uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLight;
 uniform int pointCount;
 uniform bool disableTexture;
+uniform sampler2D shadowMap;
 
 vec4 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 
 vec4 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 vec4 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir);
 
 void main() {
     // 属性
@@ -100,7 +104,10 @@ vec4 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
     vec4 ambient  = vec4(light.ambient, 1.0) * tex;
     vec4 diffuse  = vec4(light.diffuse, 1.0)  * diff * tex;
     vec4 specular = vec4(light.specular, 1.0) * spec * texture(material.texture_specular1, TexCoords);
-    return (ambient + diffuse + specular);
+    // 计算阴影
+    float shadow = ShadowCalculation(FragPosLightSpace, lightDir);
+    vec4 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * tex; // vec4(shadow, shadow, shadow, 1.0);
+    return lighting;
 }
 
 vec4 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
@@ -168,4 +175,34 @@ vec4 CalcSpotLight(SpotLight light, vec3 norm, vec3 fragPos, vec3 viewDir) {
     specular *= intensity;
 
     return (ambient + diffuse + specular);
+}
+
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir) {
+    if (lightDir[1] < 0) // 夜晚
+        return 1.0;
+    if (FragPos[2] < -10) // 超界
+        return 0;
+    // 执行透视除法
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // 变换到[0,1]的范围
+    projCoords = projCoords * 0.5 + 0.5;
+    // 取得最近点的深度(使用[0,1]范围下的fragPosLight当坐标)
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    // 取得当前片段在光源视角下的深度
+    float currentDepth = projCoords.z;
+    // 检查当前片段是否在阴影中
+    float bias = max(0.05 * (1.0 - dot(Normal, lightDir)), 0.005);
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for(int x = -1; x <= 1; ++x) {
+        for(int y = -1; y <= 1; ++y) {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+        }
+    }
+    shadow /= 9.0;
+
+    if (projCoords.z > 1.0)
+        shadow = 0.0;
+    return shadow;
 }

@@ -32,7 +32,7 @@ void Plane::draw(Shader *shader) {
                                   100.0f);
     glm::mat4 view = camera->getViewMatrix();
     glm::mat4 modelMat = glm::mat4(1.0f);
-    modelMat = glm::translate(modelMat, glm::vec3{0, 0.49, 2});
+    modelMat = glm::translate(modelMat, glm::vec3{0, 0.49, -3});
 
     shader->setMat4("view", view);
     shader->setMat4("projection", projection);

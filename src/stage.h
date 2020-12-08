@@ -15,6 +15,7 @@ class Stage {
     Shader *glassShader = nullptr;
     Shader *mirrorShader = nullptr;
     std::vector<Shader *> modelShaders{nullptr, nullptr, nullptr, nullptr};
+    Shader *depthShader = nullptr;
 
     Camera *camera = nullptr;
     Model *model = nullptr;
@@ -29,7 +30,12 @@ class Stage {
 
     Plane *plane = nullptr;
 
+    GLuint depthMapFBO;
+    GLuint depthMap;
+
 public:
+
+    static const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
     Stage() = default;
 
@@ -38,6 +44,10 @@ public:
     void idle(float delta);
 
     void drawStaff();
+
+    void prepareShadow();
+
+    void drawShadow();
 
     [[nodiscard]] Camera *getCamera() const;
 

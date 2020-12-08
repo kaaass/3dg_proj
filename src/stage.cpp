@@ -20,6 +20,8 @@ void Stage::prepareDraw() {
     modelShaders[1] = modelShaders[0];
     modelShaders[2] = new Shader("shader/calc_norm.vert", "shader/calc_norm.geom", "shader/mirror.frag");
     modelShaders[3] = new Shader("shader/calc_norm.vert", "shader/calc_norm.geom", "shader/glass.frag");
+    depthShader = new Shader("shader/depth.vert", "shader/empty.frag");
+    prepareShadow();
 
     // 照相机
     camera = new Camera(glm::vec3(1.0f, 1.0f, 5.0f));
@@ -70,6 +72,11 @@ void Stage::idle(float delta) {
 }
 
 void Stage::drawStaff() {
+    // 阴影
+    drawShadow();
+    glViewport(0, 0, Game::getInstance()->screen.width, Game::getInstance()->screen.height);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     // 地板
     plane->draw(standardShader);
 
@@ -171,4 +178,71 @@ void Stage::drawModels() {
 
 SnowManager *Stage::getSnow() const {
     return snow;
+}
+
+void Stage::drawShadow() {
+    GLfloat near_plane = 1.0f, far_plane = 40.0f;
+    glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+    glm::mat4 lightView = glm::lookAt(-Lighting::getDefault()->getDirection() * 20.0f,
+                                      glm::vec3(0.0f),
+                                      glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+
+    depthShader->use();
+    depthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+    glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    // 绘制需要阴影的场景
+    plane->draw(depthShader);
+    for (auto &sphere : spheres) {
+        sphere.draw(depthShader);
+    }
+    // 模型
+    for (int i = 0; i < modelShaders.size(); i++) {
+        // model 矩阵
+        glm::mat4 modelMat = glm::mat4(1.0f);
+        modelMat = glm::translate(modelMat, glm::vec3{(i - 1.5) * 3 - 0.4, 0, -4});
+        modelMat = glm::scale(modelMat, glm::vec3(1.0) * 0.015f);
+        depthShader->setMat4("model", modelMat);
+        // 绘制
+        model->draw(*depthShader);
+    }
+    // 结束绘制
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // 设置相关参数
+    standardShader->use();
+    standardShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+    glActiveTexture(GL_TEXTURE6);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    standardShader->setInt("shadowMap", 6);
+    modelShaders[0]->use();
+    modelShaders[0]->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+    modelShaders[0]->setInt("shadowMap", 6);
+}
+
+void Stage::prepareShadow() {
+    // Frame buffer
+    glGenFramebuffers(1, &depthMapFBO);
+    // Create 2D texture
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+                 SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    GLfloat borderColor[] = {1.0, 1.0, 1.0, 1.0};
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    // Bind to depth buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

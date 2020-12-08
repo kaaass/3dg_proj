@@ -54,7 +54,7 @@ private:
     int pointLightCount;
 
     bool dir = true;
-    float angle = -60.0f;
+    float angle = 180.0f;
 
     static Lighting *INSTANCE;
 
