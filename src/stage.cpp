@@ -107,8 +107,17 @@ void Stage::drawStaff() {
     standardShader->setFloat("material.shininess", 16.0f);
     spheres[1].draw(standardShader);
     // 镜面球
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, Texture::of("silver"));
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, Texture::of("silver_specular"));
     mirrorShader->use();
+    mirrorShader->setInt("material.texture_diffuse1", 0);
+    mirrorShader->setInt("material.texture_specular1", 1);
+    mirrorShader->setInt("skybox", 5);
     mirrorShader->setVec3("cameraPos", camera->position);
+    mirrorShader->setFloat("material.shininess", 64.0f);
+    glActiveTexture(GL_TEXTURE5);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->getCubemapTexture());
     spheres[2].draw(mirrorShader);
     // 玻璃球
@@ -169,8 +178,21 @@ void Stage::drawModels() {
             }
             shader->setFloat("material.shininess", 64.0f);
         } else {
-            shader->setVec3("cameraPos", camera->position);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->getCubemapTexture());
+            if (i == 2) {
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, Texture::of("silver"));
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, Texture::of("silver_specular"));
+                shader->use();
+                shader->setInt("material.texture_diffuse1", 0);
+                shader->setInt("material.texture_specular1", 1);
+                shader->setInt("skybox", 5);
+                shader->setVec3("cameraPos", camera->position);
+                shader->setFloat("material.shininess", 64.0f);
+            } else {
+                shader->setVec3("cameraPos", camera->position);
+                glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->getCubemapTexture());
+            }
         }
         // 绘制
         model->draw(*shader);
@@ -238,17 +260,19 @@ void Stage::drawShadow() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // 设置相关参数
-    standardShader->use();
-    standardShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_2D, depthMap);
-    standardShader->setInt("shadowMap", 6);
-    modelShaders[0]->use();
-    modelShaders[0]->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-    modelShaders[0]->setInt("shadowMap", 6);
-    mmdShader->use();
-    mmdShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-    mmdShader->setInt("shadowMap", 6);
+    Shader *shaderUpdate[] = {
+            standardShader,
+            modelShaders[0], modelShaders[1], modelShaders[2],
+            mmdShader,
+            mirrorShader
+    };
+    for (auto shader : shaderUpdate) {
+        shader->use();
+        shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        shader->setInt("shadowMap", 6);
+    }
 }
 
 void Stage::prepareShadow() {
