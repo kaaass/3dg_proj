@@ -122,8 +122,9 @@ void Stage::drawStaff() {
     spheres[2].draw(mirrorShader);
     // 玻璃球
     glassShader->use();
+    glassShader->setInt("skybox", 5);
     glassShader->setVec3("cameraPos", camera->position);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->getCubemapTexture());
+    glassShader->setFloat("material.shininess", 64.0f);
     spheres[3].draw(glassShader);
     //
     glDisable(GL_CULL_FACE);
@@ -190,8 +191,10 @@ void Stage::drawModels() {
                 shader->setVec3("cameraPos", camera->position);
                 shader->setFloat("material.shininess", 64.0f);
             } else {
+                shader->use();
+                shader->setInt("skybox", 5);
                 shader->setVec3("cameraPos", camera->position);
-                glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->getCubemapTexture());
+                shader->setFloat("material.shininess", 64.0f);
             }
         }
         // 绘制
