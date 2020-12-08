@@ -21,7 +21,7 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float u
 
 glm::mat4 Camera::getViewMatrix() const {
     if (mode == MODE_AUTO) {
-        return glm::lookAt(position, glm::vec3{0, 0, 0}, glm::vec3{0, 1, 0});
+        return glm::lookAt(position, glm::vec3{0, 2, 0}, glm::vec3{0, 1, 0});
     }
     return glm::lookAt(position, position + front, up);
 }

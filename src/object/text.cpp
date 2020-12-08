@@ -11,7 +11,7 @@
 void Text::init() {
     // 字体
     atlas = texture_atlas_new(512, 512, 1);
-    font = texture_font_new_from_file(atlas, 32, "font/SimHei.ttf");
+    font = texture_font_new_from_file(atlas, 44, "font/SimHei.ttf");
     // 绑定材质
     glGenTextures(1, &atlas->id);
     glBindTexture(GL_TEXTURE_2D, atlas->id);
@@ -70,7 +70,8 @@ void Text::draw() {
     Lighting::getDefault()->useShader(shader);
     glDepthFunc(GL_LEQUAL);
     // 绘制
-    shader->setVec3("offset", glm::vec3{0.001, -0.001, 0});
+    float w = Game::getInstance()->screen.width, h = Game::getInstance()->screen.height;
+    shader->setVec3("offset", glm::vec3{2 / w, -2 / h, 0});
     shader->setVec3("color", glm::vec3{0, 0, 0});
     shader->setInt("texture", 0);
 
@@ -122,7 +123,7 @@ float Text::addLine(float height, const std::string &text) {
             line_height = std::max((int) glyph->height, line_height);
         }
     }
-    return line_height / h;
+    return (line_height / h) * 1.1f;
 }
 
 void Text::updateText(float delta) {

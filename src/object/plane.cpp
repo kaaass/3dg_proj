@@ -41,9 +41,9 @@ void Plane::draw(Shader *shader) {
     shader->setInt("material.texture_diffuse1", 0);
     shader->setInt("material.texture_specular1", 1);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, Texture::of("grass"));
+    glBindTexture(GL_TEXTURE_2D, Texture::of("road"));
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, Texture::of("grass_specular"));
+    glBindTexture(GL_TEXTURE_2D, Texture::of("road_specular"));
     shader->setFloat("material.shininess", 16.0f);
 
     // 绘制
