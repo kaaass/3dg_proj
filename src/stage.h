@@ -2,6 +2,7 @@
 #define INC_3DG_PROJ_STAGE_H
 
 #include <object/skybox.h>
+#include <object/text.h>
 #include "shader.h"
 #include "camera.h"
 #include "model.h"
@@ -23,6 +24,8 @@ class Stage {
 
     Skybox *skybox = nullptr;
 
+    Text *text = nullptr;
+
 public:
 
     Stage() = default;
@@ -43,6 +46,7 @@ public:
         delete skybox;
         for (auto p: modelShaders)
             delete p;
+        delete text;
     }
 
     SnowManager *getSnow() const;

@@ -10,3 +10,6 @@
 [submodule "externals/assimp"]
 	path = externals/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "externals/freetype-gl"]
+	path = externals/freetype-gl
+	url = https://github.com/rougier/freetype-gl.git

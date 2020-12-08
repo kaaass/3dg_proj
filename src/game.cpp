@@ -130,7 +130,7 @@ void Game::processInput(GLFWwindow *wind) {
         static double lstT = 0;
         double now = glfwGetTime();
         if (now - lstT > 0.2) {
-            //
+            curStage()->getSnow()->setTexture(!curStage()->getSnow()->isTexture());
             lstT = now;
         }
     }

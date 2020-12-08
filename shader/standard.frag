@@ -58,6 +58,7 @@ uniform DirLight dirLight;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLight;
 uniform int pointCount;
+uniform bool disableTexture;
 
 vec4 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 
@@ -90,8 +91,14 @@ vec4 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
     // 合并结果
-    vec4 ambient  = vec4(light.ambient, 1.0) * texture(material.texture_diffuse1, TexCoords);
-    vec4 diffuse  = vec4(light.diffuse, 1.0)  * diff * texture(material.texture_diffuse1, TexCoords);
+    vec4 tex;
+    if (disableTexture) {
+        tex = vec4(1, 1, 1, 1);
+    } else {
+        tex = texture(material.texture_diffuse1, TexCoords);
+    }
+    vec4 ambient  = vec4(light.ambient, 1.0) * tex;
+    vec4 diffuse  = vec4(light.diffuse, 1.0)  * diff * tex;
     vec4 specular = vec4(light.specular, 1.0) * spec * texture(material.texture_specular1, TexCoords);
     return (ambient + diffuse + specular);
 }
@@ -108,8 +115,14 @@ vec4 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     float attenuation = 1.0 / (light.constant + light.linear * distance +
     light.quadratic * (distance * distance));
     // 合并结果
-    vec4 ambient  = vec4(light.ambient, 1.0) * texture(material.texture_diffuse1, TexCoords);
-    vec4 diffuse  = vec4(light.diffuse, 1.0)  * diff * texture(material.texture_diffuse1, TexCoords);
+    vec4 tex;
+    if (disableTexture) {
+        tex = vec4(1, 1, 1, 1);
+    } else {
+        tex = texture(material.texture_diffuse1, TexCoords);
+    }
+    vec4 ambient  = vec4(light.ambient, 1.0) * tex;
+    vec4 diffuse  = vec4(light.diffuse, 1.0)  * diff * tex;
     vec4 specular = vec4(light.specular, 1.0) * spec * texture(material.texture_specular1, TexCoords);
     ambient  *= attenuation;
     diffuse  *= attenuation;
@@ -119,13 +132,19 @@ vec4 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
 
 vec4 CalcSpotLight(SpotLight light, vec3 norm, vec3 fragPos, vec3 viewDir) {
     vec3 lightDir = normalize(light.position - fragPos);
+    vec4 tex;
+    if (disableTexture) {
+        tex = vec4(1, 1, 1, 1);
+    } else {
+        tex = texture(material.texture_diffuse1, TexCoords);
+    }
 
     // Ambient
-    vec4 ambient = vec4(light.ambient, 1.0) * texture(material.texture_diffuse1, TexCoords);
+    vec4 ambient = vec4(light.ambient, 1.0) * tex;
 
     // Diffuse    
     float diff = max(dot(norm, lightDir), 0.0);
-    vec4 diffuse = vec4(light.diffuse, 1.0) * diff * texture(material.texture_diffuse1, TexCoords);
+    vec4 diffuse = vec4(light.diffuse, 1.0) * diff * tex;
 
     // Specular Highlight
     float specularStrength = 0.5;

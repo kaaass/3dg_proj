@@ -20,8 +20,9 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float u
 }
 
 glm::mat4 Camera::getViewMatrix() const {
-    if (mode == MODE_AUTO)
+    if (mode == MODE_AUTO) {
         return glm::lookAt(position, glm::vec3{0, 0, 0}, glm::vec3{0, 1, 0});
+    }
     return glm::lookAt(position, position + front, up);
 }
 
@@ -100,5 +101,6 @@ void Camera::idle(float delta) {
         angle += delta * 10;
 
         position = glm::vec3{cos(angle / 180 * 3.1415) * 10, 3.0, sin(angle / 180 * 3.1415) * 10};
+        front = position - glm::vec3{0, 0, 0};
     }
 }

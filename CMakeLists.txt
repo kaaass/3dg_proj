@@ -40,5 +40,9 @@ set(ASSIMP_BUILD_OBJ_IMPORTER ON)
 set(ASSIMP_BUILD_MMD_IMPORTER ON)
 add_subdirectory("${ASSIMP_DIR}")
 target_link_libraries(${PROJECT_NAME} "assimp" "${Assimp_BINARY_DIR}/lib")
-target_include_directories(${PROJECT_NAME} PRIVATE " ${Assimp_SOURCE_DIR}/include")
+target_include_directories(${PROJECT_NAME} PRIVATE "${Assimp_SOURCE_DIR}/include")
 
+# Find Freetype
+find_package(Freetype REQUIRED)
+target_link_libraries(${PROJECT_NAME} ${FREETYPE_LIBRARIES})
+target_include_directories(${PROJECT_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})

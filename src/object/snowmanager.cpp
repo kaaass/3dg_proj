@@ -86,7 +86,7 @@ void SnowManager::draw() {
     }
     // 顶点缓冲对象
     glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-    glBufferData(GL_ARRAY_BUFFER, (n + generatedSnow.size()) * 6 * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (n + generatedSnow.size()) * 6 * sizeof(glm::mat4), &modelMatrices[0], GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     delete[] modelMatrices;
 
@@ -95,6 +95,7 @@ void SnowManager::draw() {
 
     // 材质
     shader->setFloat("material.shininess", 64.0f);
+    shader->setBool("disableTexture", !texture);
 
     // 视图、投影矩阵
     glm::mat4 projection;
@@ -162,4 +163,12 @@ void SnowManager::spawnOnScreen(float x, float y) {
     sn.rot_y = R_0_1 - .5;
     sn.rot_z = R_0_1 - .5;
     generatedSnow.push_back(sn);
+}
+
+bool SnowManager::isTexture() const {
+    return texture;
+}
+
+void SnowManager::setTexture(bool texture) {
+    SnowManager::texture = texture;
 }

@@ -30,6 +30,12 @@ private:
     uint vertVBO;
     uint instanceVBO;
 
+    bool texture = true;
+public:
+    bool isTexture() const;
+
+    void setTexture(bool texture);
+
 public:
 
     void init(int n);

@@ -45,6 +45,10 @@ void Stage::prepareDraw() {
 
     // 模型
     model = new Model("model/lucy.obj");
+
+    // 文本
+    text = new Text;
+    text->init();
 }
 
 void Stage::idle(float delta) {
@@ -56,6 +60,9 @@ void Stage::idle(float delta) {
 
     // 摄像机
     camera->idle(delta);
+
+    // 文本
+    text->idle(delta);
 }
 
 void Stage::drawStaff() {
@@ -101,6 +108,9 @@ void Stage::drawStaff() {
 
     // 天空盒
     skybox->drawLast();
+
+    // 文本
+    text->draw();
 }
 
 Camera *Stage::getCamera() const {
