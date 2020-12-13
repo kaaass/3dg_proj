@@ -133,6 +133,13 @@ void Stage::drawStaff() {
     glassShader->setInt("skybox", 5);
     glassShader->setVec3("cameraPos", camera->position);
     glassShader->setFloat("material.shininess", 64.0f);
+    float light = 1.0f;
+    if (Lighting::getDefault()->isDir()) {
+        light = -Lighting::getDefault()->getDirection()[1];
+        if (light < 0.4)
+            light = 0.4;
+    }
+    glassShader->setFloat("light", light);
     spheres[3].draw(glassShader);
     //
     glDisable(GL_CULL_FACE);
@@ -203,6 +210,13 @@ void Stage::drawModels() {
                 shader->setInt("skybox", 5);
                 shader->setVec3("cameraPos", camera->position);
                 shader->setFloat("material.shininess", 64.0f);
+                float light = 1.0f;
+                if (Lighting::getDefault()->isDir()) {
+                    light = -Lighting::getDefault()->getDirection()[1];
+                    if (light < 0.4)
+                        light = 0.4;
+                }
+                shader->setFloat("light", light);
             }
         }
         // 绘制
