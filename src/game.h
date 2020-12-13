@@ -19,6 +19,8 @@ public:
 
         float deltaTime = 0.0f;
         float lastFrame = 0.0f;
+
+        float animTime = 0.0f;
     };
 
     Screen screen;

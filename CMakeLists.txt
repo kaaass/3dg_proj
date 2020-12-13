@@ -46,3 +46,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${Assimp_SOURCE_DIR}/include
 find_package(Freetype REQUIRED)
 target_link_libraries(${PROJECT_NAME} ${FREETYPE_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
+
+# Find saba
+set(saba_DIR "${LIB_DIR}/saba")
+add_subdirectory("${saba_DIR}")
+target_link_libraries(${PROJECT_NAME} Saba)
+target_include_directories(${PROJECT_NAME} PRIVATE "${saba_DIR}/src")
+
+# Find glm
+target_include_directories(${PROJECT_NAME} PRIVATE "${LIB_DIR}/glm/include")

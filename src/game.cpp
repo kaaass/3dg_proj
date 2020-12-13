@@ -125,7 +125,7 @@ void Game::processInput(GLFWwindow *wind) {
             lstL = now;
         }
     }
-    // TODO 雪花材质
+    // 雪花材质
     if (glfwGetKey(wind, GLFW_KEY_T) == GLFW_PRESS) {
         static double lstT = 0;
         double now = glfwGetTime();
@@ -165,6 +165,15 @@ void Game::processInput(GLFWwindow *wind) {
             } else {
                 glfwSetInputMode(wind, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             }
+        }
+    }
+    // 重播动画
+    if (glfwGetKey(wind, GLFW_KEY_R) == GLFW_PRESS) {
+        static double lstR = 0;
+        double now = glfwGetTime();
+        if (now - lstR > 0.2) {
+            Game::curStage()->getMmdModel()->resetAnim();
+            lstR = now;
         }
     }
 }

@@ -21,7 +21,7 @@ void Stage::prepareDraw() {
     modelShaders[2] = new Shader("shader/calc_norm.vert", "shader/calc_norm.geom", "shader/mirror.frag");
     modelShaders[3] = new Shader("shader/calc_norm.vert", "shader/calc_norm.geom", "shader/glass.frag");
     depthShader = new Shader("shader/depth.vert", "shader/empty.frag");
-    mmdShader = new Shader("shader/standard.vert", "shader/mmd.frag");
+    mmdShader = new Shader("shader/mmd.vert", "shader/mmd.frag");
     prepareShadow();
 
     // 照相机
@@ -52,7 +52,8 @@ void Stage::prepareDraw() {
 
     // 模型
     model = new Model("model/lucy.obj");
-    mmdModel = new Model("model/rin/Black.pmx");
+    mmdModel = new MmdModel("model/rin/Black.pmx", "model/motion.vmd");
+    mmdModel->init();
 
     // 文本
     text = new Text;
@@ -71,6 +72,13 @@ void Stage::idle(float delta) {
 
     // 文本
     text->idle(delta);
+
+    // MMD
+    mmdModel->idle(delta);
+}
+
+MmdModel *Stage::getMmdModel() const {
+    return mmdModel;
 }
 
 void Stage::drawStaff() {
@@ -125,6 +133,13 @@ void Stage::drawStaff() {
     glassShader->setInt("skybox", 5);
     glassShader->setVec3("cameraPos", camera->position);
     glassShader->setFloat("material.shininess", 64.0f);
+    float light = 1.0f;
+    if (Lighting::getDefault()->isDir()) {
+        light = -Lighting::getDefault()->getDirection()[1];
+        if (light < 0.4)
+            light = 0.4;
+    }
+    glassShader->setFloat("light", light);
     spheres[3].draw(glassShader);
     //
     glDisable(GL_CULL_FACE);
@@ -195,23 +210,20 @@ void Stage::drawModels() {
                 shader->setInt("skybox", 5);
                 shader->setVec3("cameraPos", camera->position);
                 shader->setFloat("material.shininess", 64.0f);
+                float light = 1.0f;
+                if (Lighting::getDefault()->isDir()) {
+                    light = -Lighting::getDefault()->getDirection()[1];
+                    if (light < 0.4)
+                        light = 0.4;
+                }
+                shader->setFloat("light", light);
             }
         }
         // 绘制
         model->draw(*shader);
     }
     // MMD
-    Lighting::getDefault()->useShader(mmdShader);
-    // model 矩阵
-    glm::mat4 modelMat = glm::mat4(1.0f);
-    modelMat = glm::translate(modelMat, glm::vec3{0, 0, 3});
-    modelMat = glm::scale(modelMat, glm::vec3(1.0 / 6));
-    mmdShader->setMat4("view", view);
-    mmdShader->setMat4("projection", projection);
-    mmdShader->setMat4("model", modelMat);
-    // 绘制
-    mmdShader->setFloat("material.shininess", 8.0f);
-    mmdModel->draw(*mmdShader);
+    mmdModel->draw(mmdShader);
     glDisable(GL_CULL_FACE);
 }
 
@@ -250,14 +262,7 @@ void Stage::drawShadow() {
         model->draw(*depthShader);
     }
     // MMD
-    // model 矩阵
-    glm::mat4 modelMat = glm::mat4(1.0f);
-    modelMat = glm::translate(modelMat, glm::vec3{0, 0, 3});
-    modelMat = glm::scale(modelMat, glm::vec3(1.0 / 6));
-    depthShader->setMat4("model", modelMat);
-    // 绘制
-    depthShader->setFloat("material.shininess", 8.0f);
-    mmdModel->draw(*depthShader);
+    mmdModel->draw(depthShader);
     // 结束绘制
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

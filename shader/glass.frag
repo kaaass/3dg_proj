@@ -63,6 +63,7 @@ uniform bool disableTexture;
 uniform sampler2D shadowMap;
 uniform vec3 cameraPos;
 uniform samplerCube skybox;
+uniform float light;
 
 vec4 GetTex();
 
@@ -200,5 +201,6 @@ vec4 GetTex() {
     float ratio = 1.00 / 1.52;
     I = normalize(FragPos - cameraPos);
     R = refract(I, normalize(Normal), ratio);
-    return vec4(texture(skybox, R).rgb, 1.0) * 0.7 + mirror * 0.3;
+    vec4 color = vec4(texture(skybox, R).rgb, 1.0) * 0.7 + mirror * 0.3;
+    return vec4(vec3(color) * light, 1);
 }

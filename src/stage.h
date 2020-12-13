@@ -4,6 +4,7 @@
 #include <object/skybox.h>
 #include <object/text.h>
 #include <object/plane.h>
+#include <object/mmd/mmdmodel.h>
 #include "shader.h"
 #include "camera.h"
 #include "model.h"
@@ -20,7 +21,7 @@ class Stage {
 
     Camera *camera = nullptr;
     Model *model = nullptr;
-    Model *mmdModel = nullptr;
+    MmdModel *mmdModel = nullptr;
 
     SnowManager *snow = nullptr;
 
@@ -65,6 +66,8 @@ public:
     }
 
     SnowManager *getSnow() const;
+
+    MmdModel *getMmdModel() const;
 
 private:
 

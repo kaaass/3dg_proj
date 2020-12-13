@@ -14,7 +14,12 @@ unsigned int Texture::textureFromFile(std::string filepath, std::string director
     return loadTexture(filepath);
 }
 
+std::map<std::string, unsigned int> Texture::TEXTURE_CACHE;
+
 unsigned int Texture::loadTexture(std::string filepath, int warp_s, int warp_t, bool gammaCorrection) {
+    if (TEXTURE_CACHE.count(filepath) > 0) {
+        return TEXTURE_CACHE[filepath];
+    }
     unsigned int texture = 0;
     std::cout << " :- - Start loading texture: " << filepath << std::endl;
     // Create texture
@@ -51,6 +56,7 @@ unsigned int Texture::loadTexture(std::string filepath, int warp_s, int warp_t, 
     }
     // Free image
     stbi_image_free(data);
+    TEXTURE_CACHE[filepath] = texture;
     return texture;
 }
 
@@ -83,11 +89,6 @@ unsigned int Texture::loadCubemap(std::vector<std::string> faces) {
     return textureID;
 }
 
-std::map<std::string, unsigned int> Texture::TEXTURE_CACHE;
-
 unsigned int Texture::of(const std::string& id) {
-    if (TEXTURE_CACHE.count(id) <= 0) {
-        TEXTURE_CACHE[id] = loadTexture("image/" + id + ".png");
-    }
-    return TEXTURE_CACHE[id];
+    return loadTexture("image/" + id + ".png");
 }

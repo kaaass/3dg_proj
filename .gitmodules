@@ -13,3 +13,6 @@
 [submodule "externals/freetype-gl"]
 	path = externals/freetype-gl
 	url = https://github.com/rougier/freetype-gl.git
+[submodule "externals/saba"]
+	path = externals/saba
+	url = https://github.com/benikabocha/saba
