@@ -159,5 +159,8 @@ void Text::updateText(float delta) {
 
     sstream.str("");
     sstream << "雪花材质（按T开关）：" << Game::curStage()->getSnow()->isTexture();
+
+    sstream.str("");
+    sstream << "动画进度（按R重置）：" << Game::getInstance()->control.animTime;
     texts.push_back(sstream.str());
 }

@@ -101,6 +101,6 @@ void Camera::idle(float delta) {
         angle += delta * 10;
 
         position = glm::vec3{cos(angle / 180 * 3.1415) * 10, 3.0, sin(angle / 180 * 3.1415) * 10};
-        front = position - glm::vec3{0, 0, 0};
+        front = glm::vec3{0, 0, 0} - position;
     }
 }
