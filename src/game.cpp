@@ -176,6 +176,25 @@ void Game::processInput(GLFWwindow *wind) {
             lstR = now;
         }
     }
+    // 暂停动画
+    if (glfwGetKey(wind, GLFW_KEY_P) == GLFW_PRESS) {
+        static double lstP = 0;
+        double now = glfwGetTime();
+        if (now - lstP > 0.2) {
+            INSTANCE->control.anim = !INSTANCE->control.anim;
+            lstP = now;
+        }
+    }
+    // 调整动画
+    if (glfwGetKey(wind, GLFW_KEY_LEFT) == GLFW_PRESS) {
+        INSTANCE->control.animTime -= deltaTime;
+        if (INSTANCE->control.animTime < 0.0) {
+            INSTANCE->control.animTime = 0.0;
+        }
+    }
+    if (glfwGetKey(wind, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        INSTANCE->control.animTime += deltaTime;
+    }
 }
 
 void Game::mouse_callback(GLFWwindow *wind, double xpos, double ypos) {

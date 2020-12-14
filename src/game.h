@@ -21,6 +21,7 @@ public:
         float lastFrame = 0.0f;
 
         float animTime = 0.0f;
+        bool anim = true;
     };
 
     Screen screen;

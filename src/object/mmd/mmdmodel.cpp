@@ -140,7 +140,8 @@ void MmdModel::idle(float delta) {
     if (delta > 1.0 / 30.0) {
         delta = 1.0 / 30.0;
     }
-    animTime += delta;
+    if (Game::getInstance()->control.anim)
+        animTime += delta;
     m_mmdModel->BeginAnimation();
     m_mmdModel->UpdateAllAnimation(m_vmdAnim.get(), animTime * 30.0f, delta);
     m_mmdModel->EndAnimation();
